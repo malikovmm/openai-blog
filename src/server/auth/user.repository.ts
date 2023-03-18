@@ -7,12 +7,4 @@ export class UserRepository extends Repository<User> {
   constructor(private readonly dataSource: DataSource) {
     super(User, dataSource.createEntityManager());
   }
-
-  async findById(id: number) {
-    return this.findOne({
-      where: {
-        id,
-      },
-    });
-  }
 }

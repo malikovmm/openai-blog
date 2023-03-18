@@ -4,7 +4,6 @@ import { ViewModule } from './view/view.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ArticleModule } from './article/article.module';
 import { CategoryModule } from './category/category.module';
-import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { OpenaiModule } from './openai/openai.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -32,7 +31,6 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-op
     }),
     ArticleModule,
     CategoryModule,
-    UserModule,
     AuthModule,
     OpenaiModule,
   ],

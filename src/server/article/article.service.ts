@@ -4,7 +4,7 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { OpenaiService } from '../openai/openai.service';
 import { CreateArticleAiDto } from './dto/create-article-ai.dto';
 import { ArticleRepository } from './article.repository';
-import { User } from '../user/entities/user.entity';
+import { User } from '../auth/entities/user.entity';
 import { CategoryRepository } from '../category/category.repository';
 
 @Injectable()

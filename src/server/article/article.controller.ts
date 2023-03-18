@@ -12,9 +12,9 @@ import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { CreateArticleAiDto } from './dto/create-article-ai.dto';
-import { AuthGuard } from '../guards/auth.guard';
 import GetAuthorizedUser from '../decorators/get-authorizated-user.decorator';
-import { User } from '../user/entities/user.entity';
+import { User } from '../auth/entities/user.entity';
+import { SessionAuthGuard } from '../guards/session-auth.guard';
 
 @Controller('article')
 export class ArticleController {

@@ -6,7 +6,7 @@ import { Article } from './entities/article.entity';
 import { OpenaiModule } from '../openai/openai.module';
 import { ArticleRepository } from './article.repository';
 import { CategoryRepository } from '../category/category.repository';
-import { UserRepository } from '../user/user.repository';
+import { UserRepository } from '../auth/user.repository';
 
 @Module({
   imports: [OpenaiModule, TypeOrmModule.forFeature([Article])],

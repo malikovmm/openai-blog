@@ -17,10 +17,15 @@ export class User {
   username: string;
   @Column()
   passwordHash: string;
-  @Column()
-  refreshToken: string;
+
   @OneToMany(() => Article, (article) => article.author)
   articles: Article[];
+
+  @Column({ nullable: true })
+  sessionId?: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  expireAt?: Date;
 
   @CreateDateColumn({
     type: 'timestamp',

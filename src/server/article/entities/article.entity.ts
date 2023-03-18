@@ -9,7 +9,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Category } from '../../category/entities/category.entity';
-import { User } from '../../user/entities/user.entity';
+import { User } from '../../auth/entities/user.entity';
 
 @Entity()
 export class Article {

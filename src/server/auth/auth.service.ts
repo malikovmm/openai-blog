@@ -1,26 +1,23 @@
-import {
-  Body,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { compareSync } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { sign, verify } from 'jsonwebtoken';
-import { User } from '../user/entities/user.entity';
-import { TokenVerificationResult } from './dto/token-validation.dto';
+import { User } from './entities/user.entity';
+import { SessionVerificationResult } from './dto/session-validation.dto';
+import { v4 as uuid } from 'uuid';
+import ms from 'ms';
+import { UserRepository } from './user.repository';
+import SessionValidationMessages from './auth.enum';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    private readonly usersRepository: UserRepository,
     private readonly configService: ConfigService,
   ) {}
 
-  async login(@Body() dto: LoginDto) {
-    const user = await this.userService.findOneBy({
+  public async login(dto: LoginDto) {
+    const user = await this.usersRepository.findOne({
       where: {
         username: dto.username,
       },
@@ -31,52 +28,52 @@ export class AuthService {
     const passwordMatch = compareSync(dto.password, user.passwordHash);
     if (!passwordMatch) throw new UnauthorizedException('user not found');
 
-    const tokens = await this.generateTokens(user);
-    const { affected } = await this.userService.update(user.id, {
-      refreshToken: tokens.refreshToken,
+    return await this.updateSession(user);
+  }
+
+  public async verifySession(
+    sessId: string,
+  ): Promise<SessionVerificationResult> {
+    const user = await this.usersRepository.findOne({
+      where: { sessionId: sessId },
     });
-    if (!affected) {
-      throw new InternalServerErrorException("can't update user");
+    if (!user) {
+      return new SessionVerificationResult(
+        false,
+        SessionValidationMessages.USER_NOT_FOUND,
+        user,
+      );
     }
-    return tokens;
-  }
-
-  async verifyAccessToken(token: string): Promise<TokenVerificationResult> {
-    try {
-      const decoded = verify(token, this.configService.get('JWT_SECRET'), {
-        complete: true,
-      });
-      const userId = decoded.payload['userId'];
-      const user = await this.userService.findById(userId);
-      if (!user) {
-        return new TokenVerificationResult(false, 'User not found');
-      }
-      return new TokenVerificationResult(true, null, user);
-    } catch (e) {
-      return new TokenVerificationResult(false, e.message);
+    if (user.expireAt && user.expireAt < new Date()) {
+      return new SessionVerificationResult(
+        false,
+        SessionValidationMessages.SESSION_EXPIRED,
+        user,
+      );
     }
+    await this.updateExpiration(user);
+    return new SessionVerificationResult(true, null, user);
   }
 
-  private async generateTokens(
-    user: User,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const accessToken = await this.generateAccessToken(user.id);
-    const refreshToken = await this.generateRefreshToken(user.id);
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  private async generateAccessToken(userId: number) {
-    return sign({ userId }, this.configService.get('JWT_SECRET'), {
-      expiresIn: this.configService.get('JWT_ACCESS_TOKEN_LIFETIME'),
+  private updateExpiration(user: User) {
+    return this.usersRepository.save({
+      id: user.id,
+      expireAt: this.getExpirationTime(),
     });
   }
 
-  private async generateRefreshToken(userId: number) {
-    return sign({ userId }, this.configService.get('JWT_SECRET'), {
-      expiresIn: this.configService.get('JWT_REFRESH_TOKEN_LIFETIME'),
+  private getExpirationTime() {
+    const sessionExpirationTime = ms(
+      this.configService.get('SESSION_EXPIRATION_TIME'),
+    );
+    return new Date(Date.now() + sessionExpirationTime);
+  }
+
+  private updateSession(user: User) {
+    return this.usersRepository.save({
+      id: user.id,
+      sessionId: uuid(),
+      expireAt: this.getExpirationTime(),
     });
   }
 }
