@@ -5,14 +5,20 @@ import { CategoryRepository } from './category.repository';
 
 @Injectable()
 export class CategoryService {
-  constructor(private readonly CategoryRepository: CategoryRepository) {}
+  constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  public async create(createCategoryDto: CreateCategoryDto) {
+    return await this.categoryRepository.save(createCategoryDto);
   }
 
-  findAll() {
-    return `This action returns all category`;
+  findAll(take: number, page: number, sortBy?: string, order?: string) {
+    const skip = (page - 1) * take;
+    return this.categoryRepository.getPaginatedCategories(
+      take,
+      skip,
+      sortBy,
+      order,
+    );
   }
 
   findOne(id: number) {

@@ -14,19 +14,16 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-op
     ConfigModule.forRoot({ isGlobal: true }),
     ViewModule,
     TypeOrmModule.forRootAsync({
-      useFactory: (configService: ConfigService) => {
-        const asd = {
-          type: 'postgres',
-          host: configService.get('DATABASE_HOST'),
-          port: parseInt(configService.get('DATABASE_PORT'), 10),
-          username: configService.get('DATABASE_USERNAME'),
-          password: configService.get('DATABASE_PASSWORD'),
-          database: configService.get('DATABASE_DBNAME'),
-          autoLoadEntities: true,
-          synchronize: true,
-        };
-        return asd as TypeOrmModuleOptions;
-      },
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DATABASE_HOST'),
+        port: parseInt(configService.get('DATABASE_PORT'), 10),
+        username: configService.get('DATABASE_USERNAME'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_DBNAME'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
       inject: [ConfigService],
     }),
     ArticleModule,

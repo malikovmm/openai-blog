@@ -33,9 +33,20 @@ export class ArticleService {
   create(createArticleDto: CreateArticleDto) {
     return `create article`;
   }
-
-  findAll() {
-    return `This action returns all article`;
+  public async findAll(
+    take: number,
+    skip: number,
+    categoryIds?: number[],
+    sortBy?: string,
+    order?: string,
+  ) {
+    return await this.articleRepository.getPaginatedArticles(
+      take,
+      skip,
+      categoryIds,
+      sortBy,
+      order,
+    );
   }
 
   findOne(id: number) {

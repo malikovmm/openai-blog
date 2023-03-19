@@ -15,9 +15,15 @@ export class ViewController {
       .render(req, res, parsedUrl.pathname, parsedUrl.query);
   }
 
-  @Get('')
-  public async redirect(@Req() req: Request, @Res() res: Response) {
-    res.redirect('/reports/imageCountOverTime');
+  @Get(['admin', 'admin/*'])
+  async handleAdminRoute(@Req() req: Request, @Res() res: Response) {
+    await this.handler(req, res);
+  }
+
+  @Get(['admin', 'admin/article'])
+  public async admin(@Req() req: Request, @Res() res: Response) {
+    const parsedUrl = parse(req.url, true);
+    await this.viewService.getNextServer().render(req, res, parsedUrl.pathname);
   }
 
   @Get('_next*')
