@@ -32,10 +32,17 @@ export class CategoryController {
   public async findAll(
     @Query('take', new ParseIntSafePipe(10)) take,
     @Query('page', new ParseIntSafePipe(1)) page,
-    @Query('sortBy') sortBy?: string,
-    @Query('order') order?: string,
+    @Query('sortBy') sortBy = 'id',
+    @Query('order') order = 'ASC',
+    @Query('nameFilter') nameFilter?: string,
   ) {
-    return await this.categoryService.findAll(take, page, sortBy, order);
+    return await this.categoryService.findAll(
+      take,
+      page,
+      sortBy,
+      order,
+      nameFilter,
+    );
   }
 
   @Get(':id')

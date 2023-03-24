@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, Like, Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 
 @Injectable()
@@ -13,14 +13,21 @@ export class CategoryRepository extends Repository<Category> {
     skip: number,
     sortBy?: string,
     order?: string,
+    nameFilter?: string,
   ) {
-    const [categories, total] = await this.findAndCount({
+    const options = {
       order: {
         [sortBy]: order,
       },
-      take,
-      skip,
-    });
+      take: take,
+      skip: skip,
+    };
+    if (nameFilter) {
+      options['where'] = {
+        name: Like(`%${nameFilter}%`),
+      };
+    }
+    const [categories, total] = await this.findAndCount(options);
     return { categories, total };
   }
 }

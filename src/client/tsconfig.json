@@ -29,6 +29,7 @@
     "assets/**/*",
     "pages/**/*",
     "utils/**/*",
+    "hooks/**/*",
     "../server/common"
   ],
   "exclude": [

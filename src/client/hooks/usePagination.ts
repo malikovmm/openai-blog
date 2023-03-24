@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+import useChainableRouter from './useChainableRouter';
 
 interface InitData {
   pageQueryName: string;
@@ -6,39 +6,31 @@ interface InitData {
 }
 
 export default function usePagination(initData: InitData) {
-  const router = useRouter();
+  const cRouter = useChainableRouter();
   const onPageChange = (nextPage) => {
-    if (!router.isReady) return;
-    router.query[initData.pageQueryName] = nextPage + 1;
-    router.push(
-      {
-        pathname: router.pathname,
-        query: router.query,
-      },
-      null,
-      {
-        unstable_skipClientCache: true,
-      },
-    );
+    cRouter
+      .create()
+      .addQuery({ [initData.pageQueryName]: nextPage + 1 })
+      .push();
   };
   const onLimitChange = (nextLimit) => {
-    if (!router.isReady) return;
-    router.query[initData.limitQueryName] = nextLimit.toString();
-    router.push(
-      {
-        pathname: router.pathname,
-        query: router.query,
-      },
-      null,
-      {
-        unstable_skipClientCache: true,
-      },
-    );
+    cRouter
+      .create()
+      .addQuery({ [initData.limitQueryName]: nextLimit })
+      .push();
   };
+  const page =
+    ~~cRouter.originalRouter.query[initData.pageQueryName] > 0
+      ? ~~cRouter.originalRouter.query[initData.pageQueryName] - 1
+      : 0;
+  const limit =
+    ~~cRouter.originalRouter.query[initData.limitQueryName] > 0
+      ? ~~cRouter.originalRouter.query[initData.limitQueryName]
+      : 10;
   return {
     onPageChange,
     onLimitChange,
-    page: router.query[initData.pageQueryName],
-    limit: router.query[initData.limitQueryName],
+    page,
+    limit,
   };
 }

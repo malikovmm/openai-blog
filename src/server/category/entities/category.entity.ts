@@ -19,7 +19,7 @@ export class Category {
   description: string;
 
   @ManyToMany(() => Article, (article) => article.categories)
-  articles: Article[];
+  articles?: Article[];
 
   @CreateDateColumn({
     type: 'timestamp',

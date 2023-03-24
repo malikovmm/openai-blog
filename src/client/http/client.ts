@@ -1,6 +1,6 @@
 import ky from 'ky';
+import { AvailableResources } from '../utils/http';
 
-type AvailableResources = 'category' | 'article';
 const buildPrefixUtl = () => {
   const url = process.env.NEXT_PUBLIC_API_URL;
   const port = process.env.NEXT_PUBLIC_PORT;
@@ -16,10 +16,30 @@ const client = ky.create({
 
 export async function getPaginatedResource<T>(
   resource: AvailableResources,
-  query: any,
+  query?: any,
 ) {
   return await client
     .get(resource, {
+      searchParams: query as any,
+    })
+    .json()
+    .then(
+      (response: Omit<T, 'error'>) => {
+        return { error: null, response };
+      },
+      (error: Error) => {
+        return { error, response: null };
+      },
+    );
+}
+
+export async function getResourceById<T>(
+  resource: AvailableResources,
+  id: string,
+  query?: any,
+) {
+  return await client
+    .get(`${resource}/${id}`, {
       searchParams: query as any,
     })
     .json()

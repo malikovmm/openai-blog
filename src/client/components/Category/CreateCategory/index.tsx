@@ -2,9 +2,8 @@ import React from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { Button, TextField } from '@mui/material';
-import client from '../../../http/client';
 import Card from '../../Card';
-import { useSnackbar } from 'notistack';
+import useResource from '../../../hooks/useResource';
 
 const validationSchema = yup.object({
   name: yup.string().required('Name is required'),
@@ -17,30 +16,15 @@ interface CategoryInput {
 }
 
 const CreateCategory = () => {
-  const { enqueueSnackbar } = useSnackbar();
-  const createCategory = (values: CategoryInput) => {
-    client
-      .post('category', {
-        json: values,
-      })
-      .then(
-        () => {
-          enqueueSnackbar('Created', { variant: 'success' });
-        },
-        (e) => {
-          enqueueSnackbar(e.message, { variant: 'error' });
-          console.log(e);
-        },
-      );
-  };
+  const { createResource } = useResource('category');
   const formik = useFormik<CategoryInput>({
     initialValues: {
       name: '',
       description: '',
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      createCategory(values);
+    onSubmit: async (values) => {
+      await createResource(values);
     },
   });
 

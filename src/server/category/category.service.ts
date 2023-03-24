@@ -11,25 +11,36 @@ export class CategoryService {
     return await this.categoryRepository.save(createCategoryDto);
   }
 
-  findAll(take: number, page: number, sortBy?: string, order?: string) {
+  findAll(
+    take: number,
+    page: number,
+    sortBy?: string,
+    order?: string,
+    nameFilter?: string,
+  ) {
     const skip = (page - 1) * take;
     return this.categoryRepository.getPaginatedCategories(
       take,
       skip,
       sortBy,
       order,
+      nameFilter,
     );
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} category`;
+    return this.categoryRepository.findOneBy({ id });
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  public async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    return await this.categoryRepository.save({
+      id,
+      name: updateCategoryDto.name,
+      description: updateCategoryDto.description,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  public async remove(id: number) {
+    return await this.categoryRepository.delete(id);
   }
 }

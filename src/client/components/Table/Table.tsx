@@ -9,6 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import styled from 'styled-components';
 import { ReactNode } from 'react';
+import Card from '../Card';
 
 const Label = styled.div`
   display: flex;
@@ -75,9 +76,9 @@ export default function StickyHeadTable({
       </Paper>
     );
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Card>
       <Label>{title}</Label>
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -102,12 +103,13 @@ export default function StickyHeadTable({
                   return (
                     <TableRow
                       hover
-                      onClick={onRowClick}
+                      onClick={() => onRowClick(row)}
                       role="checkbox"
                       tabIndex={-1}
                       key={`${page === null ? currentPage : page}${ix}${
                         limit === null ? rowsPerPage : limit
                       }`}
+                      sx={{ cursor: 'pointer' }}
                     >
                       {columns.map((column) => {
                         const value = row[column.id];
@@ -160,6 +162,6 @@ export default function StickyHeadTable({
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </Paper>
+    </Card>
   );
 }

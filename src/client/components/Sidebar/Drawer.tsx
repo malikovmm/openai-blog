@@ -14,6 +14,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import styledd from 'styled-components';
 import SidebarItem from './SidebarItem';
+import ConfirmationDialog from '../Dialog';
+import { DialogContext } from '../../hooks/useDialog';
 
 const drawerWidth = 240;
 
@@ -101,60 +103,58 @@ interface Props {
 
 export default function MiniDrawer(props: Props) {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [dialogData, setDialogData] = React.useState<DialogContext>({});
   const handleDrawerOpen = () => {
-    setOpen(true);
+    setDrawerOpen(true);
   };
 
   const handleDrawerClose = () => {
-    setOpen(false);
+    setDrawerOpen(false);
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: 'none' }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            {props.headerTitle}
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <SidebarItem text={'item'} isOpen={open} />
-        </List>
-        <Divider />
-      </Drawer>
-      <MainContainer>
-        <Box>
-          {/*<DrawerHeader>{props.title}</DrawerHeader>*/}
-          {props.children}
-        </Box>
-      </MainContainer>
-    </Box>
+    <DialogContext.Provider value={{ dialogData, setDialogData }}>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="fixed" open={drawerOpen}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{
+                marginRight: 5,
+                ...(drawerOpen && { display: 'none' }),
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div">
+              {props.headerTitle}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Drawer variant="permanent" open={drawerOpen}>
+          <DrawerHeader>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === 'rtl' ? (
+                <ChevronRightIcon />
+              ) : (
+                <ChevronLeftIcon />
+              )}
+            </IconButton>
+          </DrawerHeader>
+          <Divider />
+          <List>
+            <SidebarItem text={'item'} isOpen={drawerOpen} />
+          </List>
+          <Divider />
+        </Drawer>
+        <MainContainer>{props.children}</MainContainer>
+        <ConfirmationDialog />
+      </Box>
+    </DialogContext.Provider>
   );
 }
