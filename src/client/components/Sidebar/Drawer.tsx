@@ -117,7 +117,7 @@ export default function MiniDrawer(props: Props) {
     <DialogContext.Provider value={{ dialogData, setDialogData }}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="fixed" open={drawerOpen}>
+        <AppBar position="fixed" open={drawerOpen} sx={{ zIndex: 3 }}>
           <Toolbar>
             <IconButton
               color="inherit"
@@ -136,7 +136,7 @@ export default function MiniDrawer(props: Props) {
             </Typography>
           </Toolbar>
         </AppBar>
-        <Drawer variant="permanent" open={drawerOpen}>
+        <Drawer variant="permanent" open={drawerOpen} sx={{ zIndex: 2 }}>
           <DrawerHeader>
             <IconButton onClick={handleDrawerClose}>
               {theme.direction === 'rtl' ? (

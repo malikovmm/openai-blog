@@ -1,6 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Configuration, CreateCompletionResponse, OpenAIApi } from 'openai';
+import {
+  Configuration,
+  CreateCompletionResponse,
+  Model,
+  OpenAIApi,
+} from 'openai';
 import { CreateCompletionRequest } from 'openai/api';
 
 @Injectable()
@@ -25,12 +30,19 @@ export class OpenaiService implements OnModuleInit {
     }
   }
 
-  async createCompletion(
+  public async createCompletion(
     createCompletionRequest: CreateCompletionRequest,
   ): Promise<CreateCompletionResponse> {
     const { data } = await this.openaiApi.createCompletion(
       createCompletionRequest,
     );
     return data;
+  }
+
+  public async listModels(): Promise<Partial<Model>[]> {
+    const { data } = await this.openaiApi.listModels();
+    return data.data
+      .map((it: Model) => ({ id: it.id, created: it.created }))
+      .sort((a, b) => b.created - a.created);
   }
 }
