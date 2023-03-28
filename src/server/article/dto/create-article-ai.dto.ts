@@ -1,35 +1,8 @@
-import { CreateCompletionRequest } from 'openai/api';
-import { IsNumber, IsBoolean, IsString } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
+import { SetSettingDto } from '../../settings/dto/set-setting.dto';
 
-export class CreateArticleAiDto implements CreateCompletionRequest {
-  @IsNumber()
-  best_of: number;
-  @IsBoolean()
-  echo: boolean;
-  @IsNumber()
-  frequency_penalty: number;
-  logit_bias: object;
-  @IsNumber()
-  logprobs: number;
-  @IsNumber()
-  max_tokens: number;
+export class CreateArticleAiDto extends SetSettingDto {
   @IsString()
-  model: string;
-  @IsNumber()
-  n: number;
-  @IsNumber()
-  presence_penalty: number;
-  @IsString()
-  prompt: string;
-  @IsString()
-  stop: string;
-  stream: boolean;
-  @IsString()
-  suffix: string;
-  @IsNumber()
-  temperature: number;
-  @IsNumber()
-  top_p: number;
-  @IsString()
-  user: string;
+  @IsOptional()
+  prompt?: string;
 }

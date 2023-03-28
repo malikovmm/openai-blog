@@ -7,6 +7,8 @@ import {
   OpenAIApi,
 } from 'openai';
 import { CreateCompletionRequest } from 'openai/api';
+import { CreateArticleAiDto } from '../article/dto/create-article-ai.dto';
+import { removeAllExceptNames } from '../util/objects';
 
 @Injectable()
 export class OpenaiService implements OnModuleInit {
@@ -31,11 +33,10 @@ export class OpenaiService implements OnModuleInit {
   }
 
   public async createCompletion(
-    createCompletionRequest: CreateCompletionRequest,
+    createCompletionRequest: CreateArticleAiDto,
   ): Promise<CreateCompletionResponse> {
-    const { data } = await this.openaiApi.createCompletion(
-      createCompletionRequest,
-    );
+    const requestBody = this.prepareRequestObject(createCompletionRequest);
+    const { data } = await this.openaiApi.createCompletion(requestBody);
     return data;
   }
 
@@ -44,5 +45,16 @@ export class OpenaiService implements OnModuleInit {
     return data.data
       .map((it: Model) => ({ id: it.id, created: it.created }))
       .sort((a, b) => b.created - a.created);
+  }
+
+  private prepareRequestObject(createCompletionRequest: CreateArticleAiDto) {
+    const requestBody = removeAllExceptNames<CreateCompletionRequest>(
+      createCompletionRequest,
+      ['translateTo'],
+    );
+    if (!requestBody?.stop[0]?.length) {
+      requestBody.stop = undefined;
+    }
+    return requestBody;
   }
 }

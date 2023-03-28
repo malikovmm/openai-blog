@@ -20,12 +20,6 @@ export class ViewController {
     await this.handler(req, res);
   }
 
-  @Get(['admin', 'admin/article'])
-  public async admin(@Req() req: Request, @Res() res: Response) {
-    const parsedUrl = parse(req.url, true);
-    await this.viewService.getNextServer().render(req, res, parsedUrl.pathname);
-  }
-
   @Get('_next*')
   public async assets(@Req() req: Request, @Res() res: Response) {
     const parsedUrl = parse(req.url, true);

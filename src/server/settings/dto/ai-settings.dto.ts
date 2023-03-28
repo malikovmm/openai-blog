@@ -8,9 +8,6 @@ export class AiSettingsDto implements CreateCompletionRequest {
   @IsString()
   model: string;
 
-  @IsString()
-  @IsOptional()
-  prompt?: string;
   @IsArray()
   @IsOptional()
   stop?: string[];

@@ -7,11 +7,13 @@ interface Props<T> {
   optionLabelName: string;
   optionValueLName: string;
   options: any[];
+  disabled?: boolean;
 }
 
 export default function SelectField<T>(props: Props<T>) {
   return (
     <Select
+      disabled={props.disabled}
       fullWidth
       labelId={`${props.valueName}-label`}
       id={props.valueName}
@@ -25,7 +27,7 @@ export default function SelectField<T>(props: Props<T>) {
           key={option[props.optionValueLName]}
           value={option[props.optionValueLName]}
         >
-          {option[props.optionValueLName]}
+          {option[props.optionLabelName]}
         </MenuItem>
       ))}
     </Select>

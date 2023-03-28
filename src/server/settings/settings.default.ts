@@ -6,4 +6,5 @@ export const defaultSettings: SetSettingDto = {
   stop: [],
   suffix: '',
   temperature: 1,
+  translateTo: '',
 };

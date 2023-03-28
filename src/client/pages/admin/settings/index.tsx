@@ -29,18 +29,14 @@ export async function getServerSideProps(
 ): Promise<GetServerSidePropsResult<OpenAIRequestFormProps>> {
   const { error: userSettingsError, response: settingsResponse } =
     await getResource<OpenAIRequestFormProps>('settings', context);
-  const { error: modelsError, response: modelsResponse } = await doGet(
-    'settings/models',
-    context,
-  );
   const { error: defaultError, response: defaultResponse } = await doGet(
     'settings/default',
     context,
   );
-  if (userSettingsError || modelsError || defaultError) {
+  if (userSettingsError || defaultError) {
     return {
       props: {
-        errors: [userSettingsError, modelsError, defaultError],
+        errors: [userSettingsError, defaultError],
       },
     };
   }
@@ -48,7 +44,6 @@ export async function getServerSideProps(
     props: {
       initialValues: settingsResponse,
       defaultValues: defaultResponse,
-      availableModels: modelsResponse,
     },
   };
 }

@@ -28,10 +28,7 @@ export default function EditCategoryPage(props: Props) {
 export async function getServerSideProps(
   context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Props>> {
-  const { error, response } = await getResourceById<Props>(
-    'category',
-    context.params.id as string,
-  );
+  const { error, response } = await getResourceById<Props>('category', context);
   if (error) {
     return {
       props: {

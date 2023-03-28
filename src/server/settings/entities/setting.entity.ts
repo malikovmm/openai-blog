@@ -17,13 +17,14 @@ export class Settings {
   max_tokens?: number;
   @Column()
   model: string;
-  @Column('text', { array: true })
+  @Column('text', { array: true, nullable: true })
   stop?: string[];
   @Column()
   suffix?: string;
   @Column()
   temperature?: number;
-
+  @Column({ nullable: true })
+  translateTo?: string;
   @OneToOne(() => User)
   @JoinColumn()
   user: User;

@@ -3,15 +3,21 @@ import {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
 } from 'next/types';
-import ky from 'ky';
 import CreateArticle from '../../../components/Article/CreateArticle';
 import AdminLayout from '../../../layouts/Admin';
+import { getResource } from '../../../http/client';
+import { SetSettingDto } from '../../../../server/settings/dto/set-setting.dto';
 
-const CreateArticlePage: FC<any> = (props) => {
+interface Props {
+  aiSettings?: SetSettingDto;
+  error?: Error;
+}
+
+const CreateArticlePage: FC<Props> = (props) => {
   return (
     <>
-      <AdminLayout>
-        <CreateArticle />
+      <AdminLayout headerTitle={'poltavsky-school > article > create'}>
+        <CreateArticle {...props} />
       </AdminLayout>
     </>
   );
@@ -19,12 +25,21 @@ const CreateArticlePage: FC<any> = (props) => {
 
 export async function getServerSideProps(
   context: GetServerSidePropsContext,
-): Promise<GetServerSidePropsResult<any>> {
-  const a = await ky.get('http://localhost:3005/article/test').text();
+): Promise<GetServerSidePropsResult<Props>> {
+  const { error, response } = await getResource<SetSettingDto>(
+    'settings',
+    context,
+  );
+  if (error) {
+    return {
+      props: {
+        error: null,
+      },
+    };
+  }
   return {
-    props: {},
+    props: { aiSettings: response },
   };
-  // const response = await fetch(apiRequestURL);
 }
 
 export default CreateArticlePage;

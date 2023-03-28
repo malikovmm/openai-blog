@@ -36,7 +36,6 @@ const Article: FC<any> = (props) => {
     limitQueryName: 'articleLimit',
   });
   useEffect(() => {
-    console.log('>>>');
     fetch('http://localhost:3000/auth', {
       credentials: 'include',
     })

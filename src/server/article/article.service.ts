@@ -15,7 +15,11 @@ export class ArticleService {
     private readonly categoryRepository: CategoryRepository,
   ) {}
 
-  async createByAi(createArticleAiDto: CreateArticleAiDto, user: User) {
+  async createByAi(
+    createArticleAiDto: CreateArticleAiDto,
+    user: User,
+    save: boolean,
+  ) {
     const completionRes = await this.openaiService.createCompletion(
       createArticleAiDto,
     );
@@ -27,12 +31,14 @@ export class ArticleService {
       title: '',
       author: user,
     });
-    return await this.articleRepository.save(created);
+    if (save) return await this.articleRepository.save(created);
+    return created;
   }
 
   create(createArticleDto: CreateArticleDto) {
     return `create article`;
   }
+
   public async findAll(
     take: number,
     skip: number,
