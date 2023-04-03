@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { OpenaiModule } from './openai/openai.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SettingsModule } from './settings/settings.module';
+import { GoogleSearchModule } from './google-search/google-search.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SettingsModule } from './settings/settings.module';
     AuthModule,
     OpenaiModule,
     SettingsModule,
+    GoogleSearchModule,
   ],
 })
 export class ServerModule {}
