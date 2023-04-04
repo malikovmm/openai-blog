@@ -7,8 +7,6 @@ import {
   OpenAIApi,
 } from 'openai';
 import { CreateCompletionRequest } from 'openai/api';
-import { CreateArticleAiDto } from '../article/dto/create-article-ai.dto';
-import { removeAllExceptNames } from '../util/objects';
 
 @Injectable()
 export class OpenaiService implements OnModuleInit {
@@ -33,11 +31,16 @@ export class OpenaiService implements OnModuleInit {
   }
 
   public async createCompletion(
-    createCompletionRequest: CreateArticleAiDto,
-  ): Promise<CreateCompletionResponse> {
-    const requestBody = this.prepareRequestObject(createCompletionRequest);
-    const { data } = await this.openaiApi.createCompletion(requestBody);
-    return data;
+    createCompletionRequest: CreateCompletionRequest,
+  ): Promise<string> {
+    try {
+      const { data } = await this.openaiApi.createCompletion(
+        createCompletionRequest,
+      );
+      return this.extractCompletionContent(data);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   public async listModels(): Promise<Partial<Model>[]> {
@@ -47,14 +50,7 @@ export class OpenaiService implements OnModuleInit {
       .sort((a, b) => b.created - a.created);
   }
 
-  private prepareRequestObject(createCompletionRequest: CreateArticleAiDto) {
-    const requestBody = removeAllExceptNames<CreateCompletionRequest>(
-      createCompletionRequest,
-      ['translateTo'],
-    );
-    if (!requestBody?.stop[0]?.length) {
-      requestBody.stop = undefined;
-    }
-    return requestBody;
+  private extractCompletionContent(data: CreateCompletionResponse) {
+    return data.choices[0].text;
   }
 }

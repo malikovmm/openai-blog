@@ -7,9 +7,11 @@ import {
   ManyToMany,
   JoinTable,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { Category } from '../../category/entities/category.entity';
 import { User } from '../../auth/entities/user.entity';
+import { ArticleBlock } from './article-block.entity';
 
 @Entity()
 export class Article {
@@ -18,8 +20,9 @@ export class Article {
 
   @Column()
   title: string;
-  @Column()
-  content: string;
+
+  @OneToMany(() => ArticleBlock, (block) => block.article)
+  blocks?: ArticleBlock[];
 
   @ManyToOne(() => User, (user) => user.articles)
   author: User;
@@ -31,13 +34,8 @@ export class Article {
   @Column('simple-json')
   meta: {
     model: string;
-    prompt: string;
     temperature: number;
     max_tokens?: number;
-    top_p?: number;
-    best_of?: number;
-    frequency_penalty?: number;
-    presence_penalty?: number;
   };
 
   @CreateDateColumn({
