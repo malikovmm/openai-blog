@@ -11,12 +11,12 @@ import sharp from 'sharp';
 import { isOk } from '../util/http';
 
 @Injectable()
-export class GoogleSearchService implements OnModuleInit {
+export class ImageService implements OnModuleInit {
   private readonly resourceFolder: string;
   private readonly defaultImage: string = '1.webp';
 
   constructor(private configService: ConfigService) {
-    this.resourceFolder = path.join(process.cwd(), 'public', 'articleImages');
+    this.resourceFolder = path.join(process.cwd(), 'public', 'images');
   }
 
   public onModuleInit(): any {
@@ -59,7 +59,7 @@ export class GoogleSearchService implements OnModuleInit {
     return this.defaultImage;
   }
 
-  private async saveImageLocally(file: Buffer): Promise<string> {
+  public async saveImageLocally(file: Buffer): Promise<string> {
     const webpFile = await sharp(file).webp({ quality: 20 }).toBuffer();
     const fileName = `${fs.readdirSync(this.resourceFolder).length + 1}.webp`;
     const filePath = path.join(this.resourceFolder, fileName);

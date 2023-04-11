@@ -403,3 +403,6 @@ notes.md
 
 cypress/videos
 cypress/screenshots
+
+/public/images/*
+!/public/images/1.webp

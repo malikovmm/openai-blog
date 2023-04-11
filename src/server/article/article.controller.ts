@@ -23,19 +23,21 @@ import { SessionAuthGuard } from '../guards/session-auth.guard';
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
+  @UseGuards(SessionAuthGuard)
+  @UsePipes(new ValidationPipe())
   @Post()
-  create(@Body() createArticleDto: CreateArticleDto) {
-    return this.articleService.create(createArticleDto);
+  create(
+    @Body() createArticleDto: CreateArticleDto,
+    @GetAuthorizedUser() user: User,
+  ) {
+    return this.articleService.create(createArticleDto, user.id);
   }
 
   @UseGuards(SessionAuthGuard)
   @UsePipes(new ValidationPipe())
   @Post('ai')
-  public async createAi(
-    @Body() createArticleAiDto: CreateArticleAiDto,
-    @GetAuthorizedUser() user: User,
-  ) {
-    return await this.articleService.createByAi(createArticleAiDto, user);
+  public async createAi(@Body() createArticleAiDto: CreateArticleAiDto) {
+    return await this.articleService.createByAi(createArticleAiDto);
   }
 
   @Get()

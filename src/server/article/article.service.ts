@@ -4,9 +4,8 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { OpenaiService } from '../openai/openai.service';
 import { CreateArticleAiDto } from './dto/create-article-ai.dto';
 import { ArticleRepository } from './article.repository';
-import { User } from '../auth/entities/user.entity';
 import { CategoryRepository } from '../category/category.repository';
-import { GoogleSearchService } from '../google-search/google-search.service';
+import { ImageService } from '../images/image.service';
 import { CreateArticleBlockAiDto } from './dto/create-article-block-ai.dto';
 import { removeKeys } from '../util/objects';
 import { ArticleBlock } from './entities/article-block.entity';
@@ -17,10 +16,10 @@ export class ArticleService {
     private readonly openaiService: OpenaiService,
     private readonly articleRepository: ArticleRepository,
     private readonly categoryRepository: CategoryRepository,
-    private readonly googleSearchService: GoogleSearchService,
+    private readonly googleSearchService: ImageService,
   ) {}
 
-  async createByAi(createArticleAiDto: CreateArticleAiDto, user: User) {
+  async createByAi(createArticleAiDto: CreateArticleAiDto) {
     const blockImages = await this.receiveBlockImages(
       createArticleAiDto.blocksData,
     );
@@ -30,15 +29,14 @@ export class ArticleService {
       blockImages,
       blockContents,
     );
-    return this.articleRepository.createWithBlocks(
+    return this.articleRepository.createWithBlocksAi(
       articleBlocks,
       createArticleAiDto,
-      user.id,
     );
   }
 
-  create(createArticleDto: CreateArticleDto) {
-    return `create article`;
+  public async create(createArticleDto: CreateArticleDto, userId: number) {
+    return this.articleRepository.createWithBlocks(createArticleDto, userId);
   }
 
   public async findAll(

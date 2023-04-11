@@ -8,7 +8,9 @@ import { AuthModule } from './auth/auth.module';
 import { OpenaiModule } from './openai/openai.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SettingsModule } from './settings/settings.module';
-import { GoogleSearchModule } from './google-search/google-search.module';
+import { ImagesModule } from './images/images.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import path from 'path';
 
 @Module({
   imports: [
@@ -32,7 +34,10 @@ import { GoogleSearchModule } from './google-search/google-search.module';
     AuthModule,
     OpenaiModule,
     SettingsModule,
-    GoogleSearchModule,
+    ImagesModule,
+    ServeStaticModule.forRoot({
+      rootPath: path.join(__dirname, '..', 'public'),
+    }),
   ],
 })
 export class ServerModule {}

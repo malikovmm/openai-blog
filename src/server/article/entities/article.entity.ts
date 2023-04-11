@@ -24,7 +24,7 @@ export class Article {
   @OneToMany(() => ArticleBlock, (block) => block.article)
   blocks?: ArticleBlock[];
 
-  @ManyToOne(() => User, (user) => user.articles)
+  @ManyToOne(() => User, (user) => user.articles, { nullable: true })
   author: User;
 
   @ManyToMany(() => Category, (category) => category.articles)
@@ -33,8 +33,9 @@ export class Article {
 
   @Column('simple-json')
   meta: {
-    model: string;
-    temperature: number;
+    created_by_ai?: boolean;
+    model?: string;
+    temperature?: number;
     max_tokens?: number;
   };
 

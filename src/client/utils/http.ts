@@ -8,3 +8,16 @@ export const buildHeaders = (sessId: string) => {
     };
   }
 };
+
+export const buildImageUrl = (fileName: string): string => {
+  return `${buildPrefixUtl()}/images/${fileName}`;
+};
+
+export const buildPrefixUtl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  const port = process.env.NEXT_PUBLIC_PORT;
+  if (port) {
+    return `${url}:${port}`;
+  }
+  return url;
+};

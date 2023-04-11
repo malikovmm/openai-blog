@@ -1,15 +1,10 @@
 import ky from 'ky';
-import { AvailableResources, buildHeaders } from '../utils/http';
+import {
+  AvailableResources,
+  buildHeaders,
+  buildPrefixUtl,
+} from '../utils/http';
 import { GetServerSidePropsContext } from 'next/types';
-
-const buildPrefixUtl = () => {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  const port = process.env.NEXT_PUBLIC_PORT;
-  if (port) {
-    return `${url}:${port}`;
-  }
-  return url;
-};
 
 const client = ky.create({
   prefixUrl: buildPrefixUtl(),
@@ -74,6 +69,7 @@ export async function getResource<T>(
       },
     );
 }
+
 export async function doGet(path: string, ctx: GetServerSidePropsContext) {
   return await client
     .get(`${path}`, {

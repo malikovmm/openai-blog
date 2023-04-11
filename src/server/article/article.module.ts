@@ -8,15 +8,15 @@ import { ArticleRepository } from './article.repository';
 import { CategoryRepository } from '../category/category.repository';
 import { UserRepository } from '../auth/user.repository';
 import { ArticleBlock } from './entities/article-block.entity';
-import { GoogleSearchModule } from '../google-search/google-search.module';
-import { GoogleSearchService } from '../google-search/google-search.service';
+import { ImagesModule } from '../images/images.module';
+import { ImageService } from '../images/image.service';
 
 @Module({
   imports: [
     OpenaiModule,
     TypeOrmModule.forFeature([Article]),
     TypeOrmModule.forFeature([ArticleBlock]),
-    GoogleSearchModule,
+    ImagesModule,
   ],
   controllers: [ArticleController],
   providers: [
@@ -24,7 +24,7 @@ import { GoogleSearchService } from '../google-search/google-search.service';
     ArticleRepository,
     CategoryRepository,
     UserRepository,
-    GoogleSearchService,
+    ImageService,
   ],
 })
 export class ArticleModule {}

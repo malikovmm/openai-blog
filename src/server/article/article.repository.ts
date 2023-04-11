@@ -3,6 +3,7 @@ import { DataSource, In, Repository } from 'typeorm';
 import { Article } from './entities/article.entity';
 import { ArticleBlock } from './entities/article-block.entity';
 import { CreateArticleAiDto } from './dto/create-article-ai.dto';
+import { CreateArticleDto } from './dto/create-article.dto';
 
 @Injectable()
 export class ArticleRepository extends Repository<Article> {
@@ -38,13 +39,10 @@ export class ArticleRepository extends Repository<Article> {
     };
   }
 
-  public async createWithBlocks(
+  public async createWithBlocksAi(
     articleBlocks: Partial<ArticleBlock>[],
     createArticleAiDto: CreateArticleAiDto,
-    userId: number,
   ) {
-    const articleBlockRepository = this.dataSource.getRepository(ArticleBlock);
-    articleBlockRepository.create();
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -63,7 +61,39 @@ export class ArticleRepository extends Repository<Article> {
           max_tokens: createArticleAiDto.max_tokens,
           temperature: createArticleAiDto.temperature,
         },
+      });
+      await queryRunner.commitTransaction();
+      return savedArticle;
+    } catch (e) {
+      console.error('Failed to save article', e);
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  public async createWithBlocks(
+    createArticleDto: CreateArticleDto,
+    userId: number,
+  ): Promise<Article> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const articleBlocksPromises = createArticleDto.blocks.map((block, ix) => {
+        return queryRunner.manager.save(ArticleBlock, { ...block, order: ix });
+      });
+      const savedBlocks = await Promise.all<ArticleBlock>(
+        articleBlocksPromises,
+      );
+      const savedArticle = await queryRunner.manager.save(Article, {
+        blocks: savedBlocks,
+        title: createArticleDto.title,
         author: { id: userId },
+        meta: {
+          created_by_ai: false,
+        },
       });
       await queryRunner.commitTransaction();
       return savedArticle;
