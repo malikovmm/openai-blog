@@ -14,6 +14,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import { CreateArticleDto } from '../../../../server/article/dto/create-article.dto';
+import { EditArticleDto } from '../../../../server/article/dto/edit-article.dto';
 
 const SimpleMde = dynamic(() => import('react-simplemde-editor'), {
   ssr: false,
@@ -28,13 +29,16 @@ interface CreateArticleBlockProps {
   contentError?: boolean;
   titleHelperText?: string;
   contentHelperText?: string;
+  picture: string;
   onPictureChange: (fileName: string) => void;
+  pictureLocation: number;
+  onPictureLocationChange: (pictureLocation: number) => void;
 }
 
-function ImageContainer(props: { src: string; isLoading: boolean }) {
+function ImageContainer(props: { picture: string; isLoading: boolean }) {
   if (props.isLoading) return <Loading />;
-  return props.src ? (
-    <ImgStyled src={props.src} alt="img" />
+  return props.picture ? (
+    <ImgStyled src={buildImageUrl(props.picture)} alt="img" />
   ) : (
     <span>Your image here</span>
   );
@@ -64,12 +68,13 @@ function RadioButtonsGroup(props: RadioButtonsGroupProps) {
 
 interface PictureConfigProps {
   onPictureChange: (fileName: string) => void;
+  picture: string;
+  pictureLocation: number;
+  onPictureLocationChange: (pictureLocation: number) => void;
 }
 
 function PictureConfig(props: PictureConfigProps) {
   const [prompt, setPrompt] = useState('');
-  const [imagePosition, setImagePosition] = useState(0);
-  const [imageUrl, setImageUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { saveImage, findImage } = useImage();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,11 +89,8 @@ function PictureConfig(props: PictureConfigProps) {
       setIsLoading(true);
       const imageName = await saveImage(fileToSave);
       if (imageName instanceof Error) return;
-      const builtImageUrl = buildImageUrl(imageName);
-      setImageUrl(builtImageUrl);
       props.onPictureChange(imageName);
     } catch (e) {
-      setImageUrl('');
       console.error(e);
     }
     setIsLoading(false);
@@ -99,17 +101,14 @@ function PictureConfig(props: PictureConfigProps) {
       setIsLoading(true);
       const imageName = await findImage(prompt);
       if (imageName instanceof Error) return;
-      const builtImageUrl = buildImageUrl(imageName);
-      setImageUrl(builtImageUrl);
       props.onPictureChange(imageName);
     } catch (e) {
-      setImageUrl('');
       console.error(e);
     }
     setIsLoading(false);
   };
   const handlePositionChanging = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImagePosition(~~e.target?.value);
+    props.onPictureLocationChange(~~e.target?.value);
   };
   return (
     <Grid container justifyContent={'space-between'} wrap={'nowrap'}>
@@ -138,7 +137,7 @@ function PictureConfig(props: PictureConfigProps) {
         <Box>
           <RadioButtonsGroup
             onChange={handlePositionChanging}
-            position={imagePosition}
+            position={props.pictureLocation}
           />
         </Box>
       </Grid>
@@ -149,17 +148,22 @@ function PictureConfig(props: PictureConfigProps) {
           justifyContent={'center'}
           alignItems={'center'}
         >
-          <ImageContainer src={imageUrl} isLoading={isLoading} />
+          <ImageContainer picture={props.picture} isLoading={isLoading} />
         </Box>
       </Grid>
     </Grid>
   );
 }
 
-function CreateArticleBlock(props: CreateArticleBlockProps) {
+function ArticleBlock(props: CreateArticleBlockProps) {
   return (
     <>
-      <PictureConfig onPictureChange={props.onPictureChange} />
+      <PictureConfig
+        onPictureChange={props.onPictureChange}
+        picture={props.picture}
+        pictureLocation={props.pictureLocation}
+        onPictureLocationChange={props.onPictureLocationChange}
+      />
       <TextField
         fullWidth
         label="Title"
@@ -181,13 +185,13 @@ function CreateArticleBlock(props: CreateArticleBlockProps) {
   );
 }
 
-interface ArticleBlocksCreationFieldsProps<T> {
+interface ArticleBlocksFieldsProps<T> {
   formik: ReturnType<typeof useFormik<T>>;
 }
 
-export default function ArticleBlocksCreationFields({
+export default function ArticleBlocksFields({
   formik,
-}: ArticleBlocksCreationFieldsProps<CreateArticleDto>) {
+}: ArticleBlocksFieldsProps<CreateArticleDto | EditArticleDto>) {
   const onTitleChange =
     (ix: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const nextBlock = formik.values.blocks[ix];
@@ -202,6 +206,11 @@ export default function ArticleBlocksCreationFields({
   const onPictureChange = (ix: number) => (val: string) => {
     const nextBlock = formik.values.blocks[ix];
     nextBlock.picture = val;
+    formik.setFieldValue('blocks', formik.values.blocks);
+  };
+  const onPictureLocationChange = (ix: number) => (val: number) => {
+    const nextBlock = formik.values.blocks[ix];
+    nextBlock.pictureLocation = val;
     formik.setFieldValue('blocks', formik.values.blocks);
   };
   const addBlock = () => {
@@ -234,7 +243,7 @@ export default function ArticleBlocksCreationFields({
               </Button>
             </Grid>
 
-            <CreateArticleBlock
+            <ArticleBlock
               title={block.title}
               onTitleChange={onTitleChange(ix)}
               content={block.content}
@@ -265,7 +274,10 @@ export default function ArticleBlocksCreationFields({
                 formik.errors.blocks[ix] &&
                 formik.errors.blocks[ix]['title']
               }
+              picture={block.picture}
               onPictureChange={onPictureChange(ix)}
+              pictureLocation={block.pictureLocation}
+              onPictureLocationChange={onPictureLocationChange(ix)}
             />
           </>
         );

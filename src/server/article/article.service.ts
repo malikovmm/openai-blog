@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { UpdateArticleDto } from './dto/update-article.dto';
 import { OpenaiService } from '../openai/openai.service';
 import { CreateArticleAiDto } from './dto/create-article-ai.dto';
 import { ArticleRepository } from './article.repository';
@@ -9,6 +8,7 @@ import { ImageService } from '../images/image.service';
 import { CreateArticleBlockAiDto } from './dto/create-article-block-ai.dto';
 import { removeKeys } from '../util/objects';
 import { ArticleBlock } from './entities/article-block.entity';
+import { EditArticleDto } from './dto/edit-article.dto';
 
 @Injectable()
 export class ArticleService {
@@ -55,12 +55,22 @@ export class ArticleService {
     );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} article`;
+  public async findOne(id: number) {
+    return this.articleRepository.findOne({
+      where: { id },
+      relations: {
+        blocks: true,
+        categories: true,
+      },
+    });
   }
 
-  update(id: number, updateArticleDto: UpdateArticleDto) {
-    return `This action updates a #${id} article`;
+  public async update(
+    id: number,
+    editArticleDto: EditArticleDto,
+    userId: number,
+  ) {
+    await this.articleRepository.updateWithBlocks(id, editArticleDto, userId);
   }
 
   remove(id: number) {

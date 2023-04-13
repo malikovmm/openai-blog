@@ -1,6 +1,6 @@
 import { IsNumber, IsString } from 'class-validator';
 
-export class CreateArticleBlock {
+export class ArticleBlockDto {
   @IsString()
   picture: string;
   @IsString()

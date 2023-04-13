@@ -13,3 +13,15 @@ export const settingsValidationSchema = Yup.object().shape({
     .min(0, 'Must be greater than or equal to 0')
     .max(2, 'Must be less than or equal to 2'),
 });
+
+export const articleValidationSchema = Yup.object({
+  title: Yup.string().required('Title is required'),
+  blocks: Yup.array().of(
+    Yup.object().shape({
+      pictureLocation: Yup.number().notRequired(),
+      picture: Yup.string().notRequired(),
+      content: Yup.string().min(5).required('Required'),
+      title: Yup.string().min(5).required('Required'),
+    }),
+  ),
+});

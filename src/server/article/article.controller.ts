@@ -13,11 +13,11 @@ import {
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { UpdateArticleDto } from './dto/update-article.dto';
 import { CreateArticleAiDto } from './dto/create-article-ai.dto';
 import GetAuthorizedUser from '../decorators/get-authorizated-user.decorator';
 import { User } from '../auth/entities/user.entity';
 import { SessionAuthGuard } from '../guards/session-auth.guard';
+import { EditArticleDto } from './dto/edit-article.dto';
 
 @Controller('article')
 export class ArticleController {
@@ -57,6 +57,7 @@ export class ArticleController {
     );
   }
 
+  @UseGuards(SessionAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.articleService.findOne(+id);
@@ -64,8 +65,12 @@ export class ArticleController {
 
   @UseGuards(SessionAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articleService.update(+id, updateArticleDto);
+  update(
+    @Param('id') id: string,
+    @Body() editArticleDto: EditArticleDto,
+    @GetAuthorizedUser() userId: number,
+  ) {
+    return this.articleService.update(+id, editArticleDto, userId);
   }
 
   @UseGuards(SessionAuthGuard)

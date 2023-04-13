@@ -33,21 +33,13 @@ export async function getPaginatedResource<T>(
 export async function getResourceById<T>(
   resource: AvailableResources,
   ctx: GetServerSidePropsContext,
-) {
+): Promise<T> {
   return await client
     .get(`${resource}/${ctx.params.id}`, {
       searchParams: ctx.query as any,
       headers: buildHeaders(ctx.req.cookies['poltavsky-sessid']),
     })
-    .json()
-    .then(
-      (response: Omit<T, 'error'>) => {
-        return { error: null, response };
-      },
-      (error: Error) => {
-        return { error, response: null };
-      },
-    );
+    .json<T>();
 }
 
 export async function getResource<T>(

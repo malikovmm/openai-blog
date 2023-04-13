@@ -18,7 +18,6 @@ function handleError(enqueueSnackbar: EnqueueSnackbar) {
 function handleSuccess(message: string, enqueueSnackbar: EnqueueSnackbar) {
   return (res: ImageCreateResponse): string => {
     enqueueSnackbar(message, { variant: 'success' });
-    console.log('res.fileName', res.fileName);
     return res.fileName;
   };
 }

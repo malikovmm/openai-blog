@@ -4,6 +4,7 @@ import { Article } from './entities/article.entity';
 import { ArticleBlock } from './entities/article-block.entity';
 import { CreateArticleAiDto } from './dto/create-article-ai.dto';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { EditArticleDto } from './dto/edit-article.dto';
 
 @Injectable()
 export class ArticleRepository extends Repository<Article> {
@@ -99,6 +100,38 @@ export class ArticleRepository extends Repository<Article> {
       return savedArticle;
     } catch (e) {
       console.error('Failed to save article', e);
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  public async updateWithBlocks(
+    id: number,
+    editArticleDto: EditArticleDto,
+    userId: number,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager
+        .getRepository(ArticleBlock)
+        .delete({ article: { id } });
+      const updatedBlocks = editArticleDto.blocks.map((block, ix) => {
+        return queryRunner.manager.save(ArticleBlock, { ...block, order: ix });
+      });
+      const savedBlocks = await Promise.all<ArticleBlock>(updatedBlocks);
+      await queryRunner.manager.getRepository(Article).save({
+        id,
+        blocks: savedBlocks,
+        title: editArticleDto.title,
+        author: { id: userId },
+      });
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      console.error('Failed to update article', e);
       await queryRunner.rollbackTransaction();
       throw e;
     } finally {
