@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { OpenaiService } from '../openai/openai.service';
-import { CreateArticleAiDto } from './dto/create-article-ai.dto';
 import { ArticleRepository } from './article.repository';
 import { CategoryRepository } from '../category/category.repository';
 import { ImageService } from '../images/image.service';
-import { CreateArticleBlockAiDto } from './dto/create-article-block-ai.dto';
-import { removeKeys } from '../util/objects';
 import { ArticleBlock } from './entities/article-block.entity';
 import { EditArticleDto } from './dto/edit-article.dto';
+import { ArticleBlockDto } from './dto/create-article-block.dto';
+import { Settings } from '../settings/entities/setting.entity';
+import { convertSettingsToCreateCompletionRequest } from '../../client/utils/dto';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class ArticleService {
@@ -17,21 +18,27 @@ export class ArticleService {
     private readonly articleRepository: ArticleRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly googleSearchService: ImageService,
+    private readonly settingsService: SettingsService,
   ) {}
 
-  async createByAi(createArticleAiDto: CreateArticleAiDto) {
-    const blockImages = await this.receiveBlockImages(
-      createArticleAiDto.blocksData,
+  async createByAi(createArticleDto: CreateArticleDto, userId: number) {
+    const userSettings: Settings = await this.settingsService.findUserSettings(
+      userId,
     );
-    const blockContents = await this.receiveBlockContent(createArticleAiDto);
+    const blockImages = await this.receiveBlockImages(createArticleDto.blocks);
+    const blockContents = await this.receiveBlockContent(
+      createArticleDto,
+      userSettings,
+    );
     const articleBlocks = this.buildArticleBlocks(
-      createArticleAiDto.blocksData,
+      createArticleDto.blocks,
       blockImages,
       blockContents,
     );
     return this.articleRepository.createWithBlocksAi(
       articleBlocks,
-      createArticleAiDto,
+      createArticleDto,
+      userSettings,
     );
   }
 
@@ -77,24 +84,24 @@ export class ArticleService {
     return `This action removes a #${id} article`;
   }
 
-  private receiveBlockImages(blocksData: CreateArticleBlockAiDto[]) {
-    const images = blocksData.map((it) =>
-      this.googleSearchService.searchImage(it.pictureData.prompt),
+  private receiveBlockImages(blocks: ArticleBlockDto[]) {
+    const images = blocks.map((it) =>
+      this.googleSearchService.searchImage(it.picture),
     );
     return Promise.all(images);
   }
 
-  private receiveBlockContent(dto: CreateArticleAiDto): Promise<string[]> {
-    const blocksContent = dto.blocksData.map((it) => {
-      return this.openaiService.createCompletion(
-        removeKeys<CreateArticleAiDto>(
-          {
-            ...dto,
-            prompt: it.prompt,
-          },
-          ['translateTo', 'blocksData', 'title'],
-        ),
-      );
+  private async receiveBlockContent(
+    dto: CreateArticleDto,
+    userSettings: Settings,
+  ): Promise<string[]> {
+    const completionSettingsBase =
+      convertSettingsToCreateCompletionRequest(userSettings);
+    const blocksContent = dto.blocks.map((it) => {
+      return this.openaiService.createCompletion({
+        ...completionSettingsBase,
+        prompt: it.content,
+      });
     });
     return Promise.allSettled(blocksContent).then((it) =>
       it.map((aiResponse) => {
@@ -108,7 +115,7 @@ export class ArticleService {
   }
 
   private buildArticleBlocks(
-    blocksData: CreateArticleAiDto['blocksData'],
+    blocksData: CreateArticleDto['blocks'],
     blockImages: string[],
     blockContents: string[],
   ): Partial<ArticleBlock>[] {
@@ -119,7 +126,7 @@ export class ArticleService {
           title: blocksData[i].title,
           content: blockContents[i],
           picture: blockImages[i],
-          pictureLocation: blocksData[i].pictureData.location ?? 0,
+          pictureLocation: blocksData[i].pictureLocation ?? 0,
           order: i,
         });
       }

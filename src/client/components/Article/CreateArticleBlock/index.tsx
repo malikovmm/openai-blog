@@ -33,6 +33,7 @@ interface CreateArticleBlockProps {
   onPictureChange: (fileName: string) => void;
   pictureLocation: number;
   onPictureLocationChange: (pictureLocation: number) => void;
+  simpleFields: boolean;
 }
 
 function ImageContainer(props: { picture: string; isLoading: boolean }) {
@@ -71,9 +72,21 @@ interface PictureConfigProps {
   picture: string;
   pictureLocation: number;
   onPictureLocationChange: (pictureLocation: number) => void;
+  simple: boolean;
 }
 
 function PictureConfig(props: PictureConfigProps) {
+  if (props.simple)
+    return (
+      <TextField
+        fullWidth
+        label="Prompt"
+        value={props.picture}
+        onChange={(e) => props.onPictureChange(e.target.value)}
+        sx={{ mb: 1, mt: 1 }}
+      />
+    );
+
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { saveImage, findImage } = useImage();
@@ -163,6 +176,7 @@ function ArticleBlock(props: CreateArticleBlockProps) {
         picture={props.picture}
         pictureLocation={props.pictureLocation}
         onPictureLocationChange={props.onPictureLocationChange}
+        simple={props.simpleFields}
       />
       <TextField
         fullWidth
@@ -173,24 +187,40 @@ function ArticleBlock(props: CreateArticleBlockProps) {
         helperText={props.titleHelperText}
         sx={{ mb: 1, mt: 1 }}
       />
-      <SimpleMde
-        value={props.content}
-        onChange={(value: string) => {
-          props.onContentChange(value);
-        }}
-        className={props.contentError ? 'mde-error' : ''}
-      />
-      {props.contentError && <FieldError>{props.contentHelperText}</FieldError>}
+      {props.simpleFields ? (
+        <TextField
+          fullWidth
+          label="Prompt"
+          value={props.content}
+          onChange={(e) => props.onContentChange(e.target?.value)}
+          error={props.contentError}
+          helperText={props.contentHelperText}
+          sx={{ mb: 1, mt: 1 }}
+        />
+      ) : (
+        <>
+          <SimpleMde
+            value={props.content}
+            onChange={props.onContentChange}
+            className={props.contentError ? 'mde-error' : ''}
+          />
+          {props.contentError && (
+            <FieldError>{props.contentHelperText}</FieldError>
+          )}
+        </>
+      )}
     </>
   );
 }
 
 interface ArticleBlocksFieldsProps<T> {
   formik: ReturnType<typeof useFormik<T>>;
+  simpleFields: boolean;
 }
 
 export default function ArticleBlocksFields({
   formik,
+  simpleFields,
 }: ArticleBlocksFieldsProps<CreateArticleDto | EditArticleDto>) {
   const onTitleChange =
     (ix: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -244,6 +274,7 @@ export default function ArticleBlocksFields({
             </Grid>
 
             <ArticleBlock
+              simpleFields={simpleFields}
               title={block.title}
               onTitleChange={onTitleChange(ix)}
               content={block.content}

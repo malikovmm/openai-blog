@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, In, Repository } from 'typeorm';
 import { Article } from './entities/article.entity';
 import { ArticleBlock } from './entities/article-block.entity';
-import { CreateArticleAiDto } from './dto/create-article-ai.dto';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { EditArticleDto } from './dto/edit-article.dto';
+import { Settings } from '../settings/entities/setting.entity';
 
 @Injectable()
 export class ArticleRepository extends Repository<Article> {
@@ -42,7 +42,8 @@ export class ArticleRepository extends Repository<Article> {
 
   public async createWithBlocksAi(
     articleBlocks: Partial<ArticleBlock>[],
-    createArticleAiDto: CreateArticleAiDto,
+    createArticleDto: CreateArticleDto,
+    userSettings: Settings,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -56,11 +57,11 @@ export class ArticleRepository extends Repository<Article> {
       );
       const savedArticle = await queryRunner.manager.save(Article, {
         blocks: savedBlocks,
-        title: createArticleAiDto.title,
+        title: createArticleDto.title,
         meta: {
-          model: createArticleAiDto.model,
-          max_tokens: createArticleAiDto.max_tokens,
-          temperature: createArticleAiDto.temperature,
+          model: userSettings.model,
+          max_tokens: userSettings.max_tokens,
+          temperature: userSettings.temperature,
         },
       });
       await queryRunner.commitTransaction();

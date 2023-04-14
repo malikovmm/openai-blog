@@ -1,4 +1,8 @@
-export type AvailableResources = 'category' | 'article' | 'settings';
+export type AvailableResources =
+  | 'category'
+  | 'article'
+  | 'article/ai'
+  | 'settings';
 
 export const buildHeaders = (sessId: string) => {
   if (!sessId) return {};

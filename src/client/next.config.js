@@ -3,4 +3,7 @@ module.exports = {
   eslint: {
     dirs: ['src/client'],
   },
+  experimental: {
+    externalDir: true,
+  },
 };

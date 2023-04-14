@@ -10,5 +10,6 @@ import { OpenaiModule } from '../openai/openai.module';
   imports: [TypeOrmModule.forFeature([Settings]), OpenaiModule],
   controllers: [SettingsController],
   providers: [SettingsService, SettingsRepository],
+  exports: [SettingsService, SettingsRepository],
 })
 export class SettingsModule {}

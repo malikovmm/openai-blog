@@ -7,9 +7,10 @@ import { EditArticleDto } from '../../../../server/article/dto/edit-article.dto'
 
 interface ArticleFormProps {
   formik: ReturnType<typeof useFormik<EditArticleDto | CreateArticleDto>>;
+  simpleFields?: boolean;
 }
 
-const ArticleForm = (props: ArticleFormProps) => {
+const ArticleForm = ({ formik, simpleFields = false }: ArticleFormProps) => {
   return (
     <>
       <TextField
@@ -17,13 +18,13 @@ const ArticleForm = (props: ArticleFormProps) => {
         id="title"
         name="title"
         label="Title"
-        value={props.formik.values.title}
-        onChange={props.formik.handleChange}
-        error={props.formik.touched.title && Boolean(props.formik.errors.title)}
-        helperText={props.formik.touched.title && props.formik.errors.title}
+        value={formik.values.title}
+        onChange={formik.handleChange}
+        error={formik.touched.title && Boolean(formik.errors.title)}
+        helperText={formik.touched.title && formik.errors.title}
         sx={{ mb: 1 }}
       />
-      <ArticleBlocksFields formik={props.formik} />
+      <ArticleBlocksFields formik={formik} simpleFields={simpleFields} />
       <Button
         color="primary"
         variant="contained"

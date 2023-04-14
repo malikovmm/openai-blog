@@ -10,7 +10,7 @@ import { articleValidationSchema } from '../../../utils/validation';
 
 const CreateArticle = () => {
   const [useAi, setUseAi] = useState(false);
-  const { createResource } = useResource('article');
+  const { createResource } = useResource(useAi ? 'article/ai' : 'article');
   const formik = useFormik<CreateArticleDto>({
     initialValues: {
       title: '',
@@ -40,13 +40,13 @@ const CreateArticle = () => {
           justifyContent={'space-between'}
           alignItems={'center'}
         >
-          <h3>Create article</h3>
+          <h3>{useAi ? 'Schedule article ai creation' : 'Create article'}</h3>
           <Button variant={'outlined'} onClick={toggleAiField}>
-            Use ai
+            {useAi ? 'Create article manual' : 'Use ai'}
           </Button>
         </Grid>
         <form onSubmit={formik.handleSubmit}>
-          <ArticleForm formik={formik} />
+          <ArticleForm formik={formik} simpleFields={useAi} />
         </form>
       </Card>
     </>

@@ -31,12 +31,10 @@ export class OpenaiService implements OnModuleInit {
   }
 
   public async createCompletion(
-    createCompletionRequest: CreateCompletionRequest,
+    request: CreateCompletionRequest,
   ): Promise<string> {
     try {
-      const { data } = await this.openaiApi.createCompletion(
-        createCompletionRequest,
-      );
+      const { data } = await this.openaiApi.createCompletion(request);
       return this.extractCompletionContent(data);
     } catch (e) {
       console.log(e);

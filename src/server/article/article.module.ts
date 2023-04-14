@@ -10,6 +10,8 @@ import { UserRepository } from '../auth/user.repository';
 import { ArticleBlock } from './entities/article-block.entity';
 import { ImagesModule } from '../images/images.module';
 import { ImageService } from '../images/image.service';
+import { SettingsModule } from '../settings/settings.module';
+import { SettingsService } from '../settings/settings.service';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { ImageService } from '../images/image.service';
     TypeOrmModule.forFeature([Article]),
     TypeOrmModule.forFeature([ArticleBlock]),
     ImagesModule,
+    SettingsModule,
   ],
   controllers: [ArticleController],
   providers: [
@@ -25,6 +28,7 @@ import { ImageService } from '../images/image.service';
     CategoryRepository,
     UserRepository,
     ImageService,
+    SettingsService,
   ],
 })
 export class ArticleModule {}

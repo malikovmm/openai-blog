@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { CreateArticleAiDto } from './dto/create-article-ai.dto';
 import GetAuthorizedUser from '../decorators/get-authorizated-user.decorator';
 import { User } from '../auth/entities/user.entity';
 import { SessionAuthGuard } from '../guards/session-auth.guard';
@@ -36,8 +35,11 @@ export class ArticleController {
   @UseGuards(SessionAuthGuard)
   @UsePipes(new ValidationPipe())
   @Post('ai')
-  public async createAi(@Body() createArticleAiDto: CreateArticleAiDto) {
-    return await this.articleService.createByAi(createArticleAiDto);
+  public async createAi(
+    @Body() createArticleDto: CreateArticleDto,
+    @GetAuthorizedUser() userId: number,
+  ) {
+    return await this.articleService.createByAi(createArticleDto, userId);
   }
 
   @Get()
