@@ -4,7 +4,7 @@ import {
   GetServerSidePropsResult,
 } from 'next/types';
 import { Category } from '../../../../server/category/entities/category.entity';
-import { getPaginatedResource } from '../../../http/client';
+import { getResource } from '../../../http/client';
 import AdminLayout from '../../../layouts/Admin';
 import CategoryView from '../../../components/Category/CategoryView';
 
@@ -25,20 +25,14 @@ const CategoryPage: FC<Props> = (props) => {
 export async function getServerSideProps(
   context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Props>> {
-  const { error, response } = await getPaginatedResource<Props>(
-    'category',
-    context.query,
-  );
-  if (error) {
+  try {
+    const props = await getResource<Props>('category', context);
     return {
-      props: {
-        error: null,
-      },
+      props,
     };
+  } catch (e) {
+    return { props: { error: e } };
   }
-  return {
-    props: response,
-  };
 }
 
 export default CategoryPage;

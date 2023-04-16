@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, FindManyOptions, In, Repository } from 'typeorm';
 import { Article } from './entities/article.entity';
 import { ArticleBlock } from './entities/article-block.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -15,29 +15,24 @@ export class ArticleRepository extends Repository<Article> {
   public async getPaginatedArticles(
     take: number,
     skip: number,
-    categoryIds?: number[],
+    categoryIds: number[],
     sortBy?: string,
     order?: string,
   ) {
-    const [articles, total] = await this.findAndCount({
-      where: {
-        categories: {
-          id: In(categoryIds),
-        },
-      },
-      relations: {
-        categories: true,
-      },
+    const options: FindManyOptions<Article> = {
       order: {
         [sortBy]: order,
       },
-      take,
-      skip,
-    });
-    return {
-      articles,
-      total,
+      take: take,
+      skip: skip,
     };
+    if (categoryIds.length) {
+      options.where = {
+        categories: In(categoryIds.map((id) => ({ id }))),
+      };
+    }
+    const [articles, total] = await this.findAndCount(options);
+    return { articles, total };
   }
 
   public async createWithBlocksAi(

@@ -2,7 +2,8 @@ export type AvailableResources =
   | 'category'
   | 'article'
   | 'article/ai'
-  | 'settings';
+  | 'settings'
+  | 'settings/default';
 
 export const buildHeaders = (sessId: string) => {
   if (!sessId) return {};

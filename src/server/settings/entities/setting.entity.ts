@@ -27,5 +27,5 @@ export class Settings {
   translateTo?: string;
   @OneToOne(() => User)
   @JoinColumn()
-  user: User;
+  user?: User;
 }

@@ -48,11 +48,12 @@ export class ArticleService {
 
   public async findAll(
     take: number,
-    skip: number,
-    categoryIds?: number[],
+    page: number,
+    categoryIds: number[],
     sortBy?: string,
     order?: string,
   ) {
+    const skip = (page - 1) * take;
     return await this.articleRepository.getPaginatedArticles(
       take,
       skip,

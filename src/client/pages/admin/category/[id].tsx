@@ -1,5 +1,4 @@
 import React from 'react';
-
 import AdminLayout from '../../../layouts/Admin';
 import { getResourceById } from '../../../http/client';
 import { Category } from '../../../../server/category/entities/category.entity';
@@ -28,15 +27,18 @@ export default function EditCategoryPage(props: Props) {
 export async function getServerSideProps(
   context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<Props>> {
-  const { error, response } = await getResourceById<Props>('category', context);
-  if (error) {
+  try {
+    const category = await getResourceById<Category>('category', context);
+    return {
+      props: { category: category, id: context.params.id as string },
+    };
+  } catch (error) {
     return {
       props: {
-        error: null,
+        error,
+        category: null,
+        id: null,
       },
     };
   }
-  return {
-    props: { category: response, id: context.params.id as string },
-  };
 }

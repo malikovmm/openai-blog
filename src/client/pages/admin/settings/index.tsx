@@ -4,15 +4,13 @@ import {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
 } from 'next/types';
-import { doGet, getResource } from '../../../http/client';
-import { SetSettingDto } from '../../../../server/settings/dto/set-setting.dto';
-import { Model } from 'openai';
+import { getResource } from '../../../http/client';
 import AdminLayout from '../../../layouts/Admin';
+import { Settings } from '../../../../server/settings/entities/setting.entity';
 
 interface OpenAIRequestFormProps {
-  initialValues?: SetSettingDto;
-  availableModels?: Model[];
-  defaultValues?: SetSettingDto;
+  initialValues?: Settings;
+  defaultValues?: Settings;
   errors?: Error[];
 }
 
@@ -27,25 +25,27 @@ const SettingsPage = (props: OpenAIRequestFormProps) => {
 export async function getServerSideProps(
   context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<OpenAIRequestFormProps>> {
-  const { error: userSettingsError, response: settingsResponse } =
-    await getResource<OpenAIRequestFormProps>('settings', context);
-  const { error: defaultError, response: defaultResponse } = await doGet(
-    'settings/default',
-    context,
-  );
-  if (userSettingsError || defaultError) {
+  try {
+    const initialValues = await getResource<Settings>('settings', context);
+    const defaultValues = await getResource<Settings>(
+      'settings/default',
+      context,
+    );
     return {
       props: {
-        errors: [userSettingsError, defaultError],
+        defaultValues,
+        initialValues,
+      },
+    };
+  } catch (e) {
+    return {
+      props: {
+        errors: [e],
+        defaultValues: null,
+        initialValues: null,
       },
     };
   }
-  return {
-    props: {
-      initialValues: settingsResponse,
-      defaultValues: defaultResponse,
-    },
-  };
 }
 
 export default SettingsPage;

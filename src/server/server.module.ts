@@ -10,7 +10,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SettingsModule } from './settings/settings.module';
 import { ImagesModule } from './images/images.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { SchedulerModule } from './scheduler/scheduler.module';
 import path from 'path';
 
 @Module({
@@ -39,7 +38,6 @@ import path from 'path';
     ServeStaticModule.forRoot({
       rootPath: path.join(process.cwd(), 'public'),
     }),
-    SchedulerModule,
   ],
 })
 export class ServerModule {}

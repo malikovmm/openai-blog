@@ -1,85 +1,38 @@
-import React, { FC, useEffect } from 'react';
-import styled from 'styled-components';
-// import { Article } from '../../../../server/article/entities/article.entity';
-import usePagination from '../../../hooks/usePagination';
+import React from 'react';
 import {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
 } from 'next/types';
-import ky from 'ky';
+import { getResource } from '../../../http/client';
+import AdminLayout from '../../../layouts/Admin';
+import ArticleView from '../../../components/Article/ArticleView';
+import { Article } from '../../../../server/article/entities/article.entity';
 
-const ContainerCharts = styled.div`
-  display: flex;
-  gap: 5px;
-  width: 100%;
-`;
-const ContainerTable = styled.div`
-  margin-top: 5px;
-  display: flex;
-  width: 100%;
-`;
+interface Props {
+  articles?: Article[];
+  total?: number;
+  error?: any;
+}
 
-const Label = styled.div`
-  display: flex;
-  font-size: 18px;
-  gap: 5px;
-  padding-top: 15px;
-  padding-left: 15px;
-`;
-const TitleLabel = styled.div`
-  display: flex;
-  gap: 5px;
-`;
-const Article: FC<any> = (props) => {
-  const { onPageChange, onLimitChange } = usePagination({
-    pageQueryName: 'articlePage',
-    limitQueryName: 'articleLimit',
-  });
-  useEffect(() => {
-    fetch('http://localhost:3000/auth', {
-      credentials: 'include',
-    })
-      .then((res) => {
-        console.log(res);
-        return res.text();
-      })
-      .then((text) => {
-        console.log(text);
-      });
-  }, []);
+const ArticlePage = (props: Props) => {
   return (
-    <>
-      <div>article index</div>
-    </>
+    <AdminLayout headerTitle={'poltavsky-school > article'}>
+      <ArticleView {...props} />
+    </AdminLayout>
   );
 };
 
 export async function getServerSideProps(
   context: GetServerSidePropsContext,
-): Promise<GetServerSidePropsResult<any>> {
-  const a = await ky.get('http://localhost:3005/article/test').text();
-  console.log(a);
-  // const res = await axiosClient
-  //   .getInstance()
-  //   .post('http://localhost:3005/auth/login', {
-  //     username: 'admin',
-  //     password: '123',
-  //   });
-  // console.log('res', res.data);
-  // Object.keys(res.headers).forEach((k) => {
-  //   context.res.setHeader(k, res.headers[k]);
-  // });
-  // axiosClient.setAccessToken(res.headers['authorization']);
-  // const { page, limit, apiRequestURL } = buildRequestData(
-  //   context,
-  //   'article',
-  //   'articlePage',
-  //   'articleLimit',
-  // );
-  return {
-    props: {},
-  };
-  // const response = await fetch(apiRequestURL);
+): Promise<GetServerSidePropsResult<Props>> {
+  try {
+    const props = await getResource<Props>('article', context);
+    return {
+      props,
+    };
+  } catch (e) {
+    return { props: { error: e } };
+  }
 }
 
-export default Article;
+export default ArticlePage;

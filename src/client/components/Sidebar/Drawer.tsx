@@ -13,9 +13,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import styledd from 'styled-components';
-import SidebarItem from './SidebarItem';
 import ConfirmationDialog from '../Dialog';
 import { DialogContext } from '../../hooks/useDialog';
+import Link from 'next/link';
+import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Article, Settings, Category } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -101,6 +103,24 @@ interface Props {
   children: React.ReactNode;
 }
 
+const links = [
+  {
+    href: '/admin/article',
+    label: 'article',
+    icon: <Article sx={{ color: 'grey' }} />,
+  },
+  {
+    href: '/admin/settings',
+    label: 'settings',
+    icon: <Settings sx={{ color: 'grey' }} />,
+  },
+  {
+    href: '/admin/category',
+    label: 'category',
+    icon: <Category sx={{ color: 'grey' }} />,
+  },
+];
+
 export default function MiniDrawer(props: Props) {
   const theme = useTheme();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -148,7 +168,26 @@ export default function MiniDrawer(props: Props) {
           </DrawerHeader>
           <Divider />
           <List>
-            <SidebarItem text={'item'} isOpen={drawerOpen} />
+            {links.map((it, ix) => (
+              <Link href={it.href} key={ix}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: drawerOpen ? 'initial' : 'center',
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: drawerOpen ? 3 : 0,
+                    }}
+                  >
+                    {it.icon}
+                  </ListItemIcon>
+                  {drawerOpen && <ListItemText primary={it.label} />}
+                </ListItemButton>
+              </Link>
+            ))}
           </List>
           <Divider />
         </Drawer>

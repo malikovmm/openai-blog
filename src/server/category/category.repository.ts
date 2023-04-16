@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Like, Repository } from 'typeorm';
+import { DataSource, FindManyOptions, Like, Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class CategoryRepository extends Repository<Category> {
     order?: string,
     nameFilter?: string,
   ) {
-    const options = {
+    const options: FindManyOptions<Category> = {
       order: {
         [sortBy]: order,
       },
@@ -23,7 +23,7 @@ export class CategoryRepository extends Repository<Category> {
       skip: skip,
     };
     if (nameFilter) {
-      options['where'] = {
+      options.where = {
         name: Like(`%${nameFilter}%`),
       };
     }

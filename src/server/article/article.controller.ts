@@ -17,6 +17,7 @@ import GetAuthorizedUser from '../decorators/get-authorizated-user.decorator';
 import { User } from '../auth/entities/user.entity';
 import { SessionAuthGuard } from '../guards/session-auth.guard';
 import { EditArticleDto } from './dto/edit-article.dto';
+import ParseIntSafePipe from '../pipes/ParseIntSafePipe';
 
 @Controller('article')
 export class ArticleController {
@@ -44,15 +45,15 @@ export class ArticleController {
 
   @Get()
   public async findAll(
-    @Query('take') take: number,
-    @Query('skip') skip: number,
-    @Query('cat') categoryIds?: number[],
-    @Query('sortBy') sortBy?: string,
-    @Query('order') order?: string,
+    @Query('take', new ParseIntSafePipe(10)) take,
+    @Query('page', new ParseIntSafePipe(1)) page,
+    @Query('cat') categoryIds: number[] = [],
+    @Query('sortBy') sortBy = 'id',
+    @Query('order') order = 'ASC',
   ) {
     return await this.articleService.findAll(
       take,
-      skip,
+      page,
       categoryIds,
       sortBy,
       order,

@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { useFormik } from 'formik';
-import { SetSettingDto } from '../../../server/settings/dto/set-setting.dto';
 import Card from '../Card';
 import useResource from '../../hooks/useResource';
 import NavTitle from '../NavTitle';
@@ -9,19 +8,19 @@ import SettingsFormElements from './SettingsFormElements';
 import { Button } from '@mui/material';
 import { DialogContext } from '../../hooks/useDialog';
 import { settingsValidationSchema } from '../../utils/validation';
+import { Settings } from '../../../server/settings/entities/setting.entity';
 
 interface OpenAIRequestFormProps {
-  initialValues?: SetSettingDto;
-  defaultValues?: SetSettingDto;
+  initialValues?: Settings;
+  defaultValues?: Settings;
 }
 
 const OpenAIRequestForm: React.FC<OpenAIRequestFormProps> = ({
   initialValues,
   defaultValues,
 }) => {
-  const { createResource: saveResource } =
-    useResource<SetSettingDto>('settings');
-  const formik = useFormik<SetSettingDto>({
+  const { createResource: saveResource } = useResource<Settings>('settings');
+  const formik = useFormik<Omit<Settings, 'id'>>({
     initialValues: {
       max_tokens: initialValues.max_tokens,
       model: initialValues.model,
