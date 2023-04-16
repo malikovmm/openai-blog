@@ -51,10 +51,16 @@ export class ImageService implements OnModuleInit {
       throw new InternalServerErrorException('Bad google api response');
     }
     for (const item of googleApiData.items) {
-      const response = await got.get(item.link, { responseType: 'buffer' });
-      if (isOk(response.statusCode)) {
-        return await this.saveImageLocally(response.body);
-      }
+      try {
+        // there is no way to handle timeout without exception :(
+        const response = await got.get(item.link, {
+          responseType: 'buffer',
+          timeout: 10000,
+        });
+        if (isOk(response.statusCode)) {
+          return await this.saveImageLocally(response.body);
+        }
+      } catch (e) {}
     }
     return this.defaultImage;
   }
