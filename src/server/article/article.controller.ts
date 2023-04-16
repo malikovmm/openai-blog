@@ -37,9 +37,9 @@ export class ArticleController {
   @Post('ai')
   public async createAi(
     @Body() createArticleDto: CreateArticleDto,
-    @GetAuthorizedUser() userId: number,
+    @GetAuthorizedUser() user: User,
   ) {
-    return await this.articleService.createByAi(createArticleDto, userId);
+    return await this.articleService.createByAi(createArticleDto, user.id);
   }
 
   @Get()
