@@ -63,6 +63,7 @@ export class ArticleRepository extends Repository<Article> {
           max_tokens: userSettings.max_tokens,
           temperature: userSettings.temperature,
         },
+        publish_at: createArticleDto.publishAt,
       });
       await queryRunner.commitTransaction();
       return savedArticle;
@@ -96,6 +97,7 @@ export class ArticleRepository extends Repository<Article> {
         meta: {
           created_by_ai: false,
         },
+        publish_at: createArticleDto.publishAt,
       });
       await queryRunner.commitTransaction();
       return savedArticle;

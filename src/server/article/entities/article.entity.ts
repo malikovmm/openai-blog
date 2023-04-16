@@ -39,6 +39,13 @@ export class Article {
     max_tokens?: number;
   };
 
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: null,
+    nullable: true,
+  })
+  public publish_at?: Date;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',

@@ -1,4 +1,9 @@
-import { IsString, ValidateNested } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { ArticleBlockDto } from './create-article-block.dto';
 
 export class CreateArticleDto {
@@ -6,4 +11,8 @@ export class CreateArticleDto {
   title: string;
   @ValidateNested({ each: true })
   blocks: ArticleBlockDto[];
+
+  @IsNumber()
+  @IsOptional()
+  publishAt?: number;
 }
